@@ -53,7 +53,7 @@ import random
 import datetime
 
 app = Flask(__name__)
-VERSION = "KBIS 1.0.11 (NELV)"
+VERSION = "KBIS 1.1 (MELT)"
 
 UPDATE_HISTORY = """
 12/3 
@@ -95,12 +95,14 @@ UPDATE_HISTORY = """
      コード大幅修正　DLFailed時の処理を変更した。
 1/7     ver 1.0.11
      コードに解説を少し追加　このまま可読性を上げていきたい
+        ver 1.1
+     ソースコード公開
     """
-VERSION_MEMO = """シーザー暗号したもの"""
+VERSION_MEMO = """鍵が溶けて公開される・・・みたいな"""
 
 DEV_MEMO = """複数のメッセージが返信できるらしい・・・"""
 
-REUD_MEMO = """今の仕様はよく考えればcredentials.jsonさえなんとかすればパブリックリポジトリにできそう"""
+REUD_MEMO = """パブリックレポジトリに何とかしてみた。"""
 
 WAKE_TIME = datetime.datetime.now().strftime('%m/%d %H:%M')
 
