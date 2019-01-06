@@ -28,7 +28,7 @@ $ git push heroku master
 
 ## Install
 ```
-$ git clone https://github.com/reud/t2.git
+$ git clone https://github.com/reud/KBIS_LINEBOT.git
 ```
 
 
