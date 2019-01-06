@@ -53,7 +53,7 @@ import random
 import datetime
 
 app = Flask(__name__)
-VERSION = "KBIS 1.1 (MELT)"
+VERSION = "KBIS 1.1.1 (MELT)"
 
 UPDATE_HISTORY = """
 12/3 
@@ -97,8 +97,10 @@ UPDATE_HISTORY = """
      コードに解説を少し追加　このまま可読性を上げていきたい
         ver 1.1
      ソースコード公開
+        ver 1.1.1
+     jokeコマンドを追加   
     """
-VERSION_MEMO = """鍵が溶けて公開される・・・みたいな"""
+VERSION_MEMO = """鍵が溶けて公開される・・・みたいな嘘です初音ミクのメルトがふと頭に浮かんだのでそうしました"""
 
 DEV_MEMO = """複数のメッセージが返信できるらしい・・・"""
 
@@ -414,7 +416,9 @@ def handle_text_message(event):
 !dama    ランダムでお年玉の金額を表示させます。
 !ver     バージョン裏話
 !dev     開発裏話
-!reud    めっちゃどうでもいい話"""
+!reud    めっちゃどうでもいい話
+!source  GitHubのレポジトリURLを出力します。
+"""
             ret = JORK_LIST
         elif word == 'omikuji':
             res = omikuji()
@@ -430,6 +434,8 @@ def handle_text_message(event):
             ret = DEV_MEMO
         elif word == 'reud':
             ret = REUD_MEMO
+        elif word== 'source':
+            ret='https://github.com/reud/KBIS_LINEBOT'
         else:
             ret = ' ! コマンドが認識できません'
 
