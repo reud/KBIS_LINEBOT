@@ -99,6 +99,8 @@ UPDATE_HISTORY = """
      ソースコード公開
         ver 1.1.1
      jokeコマンドを追加   
+        ver 1.1.2
+     get_user_type()の引数を修正
     """
 VERSION_MEMO = """鍵が溶けて公開される・・・みたいな嘘です初音ミクのメルトがふと頭に浮かんだのでそうしました"""
 
@@ -403,7 +405,7 @@ def handle_text_message(event):
 
 
     text = event.message.text
-    user_type = get_user_type(profile.user_id, manager)
+    user_type = get_user_type(profile.user_id)
     success_str = '失敗' if DLFailedFlag else '成功'
 
     notifer.output(
@@ -528,7 +530,7 @@ def handle_text_message(event):
                     MessageAction(label='班の予算額を確認', text='group_check'),
                     MessageAction(label='check prof', text='profile'),
                     MessageAction(label='omikuji', text='!omikuji'),
-                    MessageAction(label='help', text='help'),
+                    MessageAction(label='操作方法を確認', text='help'),
 
                 ])
             template_message = TemplateSendMessage(
@@ -540,7 +542,7 @@ def handle_text_message(event):
                 text=f'ようこそ {data.name}さん', actions=[
                     MessageAction(label='滞納額を確認', text='check'),
                     MessageAction(label='班の予算額を確認', text='group_check'),
-                    MessageAction(label='help', text='help'),
+                    MessageAction(label='操作方法を確認', text='help'),
                     MessageAction(label='see_history', text='his'),
 
                 ])
