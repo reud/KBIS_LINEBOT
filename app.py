@@ -53,7 +53,8 @@ import random
 import datetime
 
 app = Flask(__name__)
-VERSION = "KBIS 1.1.1 (MELT)"
+VERSION = "KBIS 1.1.3 (MELT)"
+SOURCE='https://github.com/reud/KBIS_LINEBOT'
 
 UPDATE_HISTORY = """
 12/3 
@@ -101,12 +102,15 @@ UPDATE_HISTORY = """
      jokeコマンドを追加   
         ver 1.1.2
      get_user_type()の引数を修正
+        ver 1.1.3
+     !reud コマンドを削除
+     メニューの修正
+     
     """
-VERSION_MEMO = """鍵が溶けて公開される・・・みたいな嘘です初音ミクのメルトがふと頭に浮かんだのでそうしました"""
+VERSION_MEMO = """メルトでボカロにハマりました"""
 
-DEV_MEMO = """複数のメッセージが返信できるらしい・・・"""
+DEV_MEMO = """見やすくして欲しいとか要望があったら気軽にGitHubのIssueに書いてくださいね"""
 
-REUD_MEMO = """パブリックレポジトリに何とかしてみた。"""
 
 WAKE_TIME = datetime.datetime.now().strftime('%m/%d %H:%M')
 
@@ -434,10 +438,6 @@ def handle_text_message(event):
             ret = VERSION_MEMO
         elif word == 'dev':
             ret = DEV_MEMO
-        elif word == 'reud':
-            ret = REUD_MEMO
-        elif word== 'source':
-            ret='https://github.com/reud/KBIS_LINEBOT'
         else:
             ret = ' ! コマンドが認識できません'
 
@@ -450,6 +450,7 @@ def handle_text_message(event):
 [group_check] 班の予算状況が見れます
 [his] アップデート履歴を確認します
 [ver] 現在のバーションを確認します
+[source]  GitHubのレポジトリURLを出力します。要望やバグなどがある際はこちらのIssueに書いていただけると幸いです。
 [!jokes] ???"""
         template_text_send(word, event)
     elif text == 'dev_see' and (user_type == UserType.DEVELOPER or user_type == UserType.ADMINISTRATOR):
@@ -494,6 +495,15 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text="Bot can't use profile API without user ID"))
+    elif text == 'source':
+        buttons_template = ButtonsTemplate (
+            text=f'ソースコードはこちら:\n{SOURCE}', actions=[
+                URIAction ( label='GitHubのサイトを開く', uri=SOURCE ),
+                MessageAction ( label='メニューに戻る', text='menu' )
+            ] )
+        template_message = TemplateSendMessage (
+            alt_text=f'更新日時:{WAKE_TIME}\n起動時更新:{success_str}', template=buttons_template )
+        line_bot_api.reply_message ( event.reply_token, template_message )
     elif text == 'check' and (
             UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type or UserType.NORMAL_USER == user_type or UserType.WELLKNOWN_USER == user_type):
         notifer.output(success_str)
@@ -526,10 +536,10 @@ def handle_text_message(event):
             UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type or UserType.NORMAL_USER == user_type or UserType.WELLKNOWN_USER == user_type):
         if (UserType.DEVELOPER == user_type):
             buttons_template = ButtonsTemplate(
-                text=f'(Developer)\n', actions=[
+                text=f'こんにちは開発者さん！', actions=[
                     MessageAction(label='班の予算額を確認', text='group_check'),
-                    MessageAction(label='check prof', text='profile'),
-                    MessageAction(label='omikuji', text='!omikuji'),
+                    MessageAction(label='アップデート履歴の確認', text='his'),
+                    MessageAction(label='再起動', text='crash'),
                     MessageAction(label='操作方法を確認', text='help'),
 
                 ])
@@ -543,7 +553,7 @@ def handle_text_message(event):
                     MessageAction(label='滞納額を確認', text='check'),
                     MessageAction(label='班の予算額を確認', text='group_check'),
                     MessageAction(label='操作方法を確認', text='help'),
-                    MessageAction(label='see_history', text='his'),
+                    MessageAction(label='バージョンの確認', text='ver'),
 
                 ])
             template_message = TemplateSendMessage(
@@ -567,14 +577,19 @@ def handle_text_message(event):
                 text=f'ようこそ {data.name}さん(admin)', actions=[
                     MessageAction(label='滞納額を確認', text='check'),
                     MessageAction(label='班の予算額を確認', text='group_check'),
-                    MessageAction(label='help', text='help'),
-                    MessageAction(label='crash', text='crash'),
+                    MessageAction(label='アップデート履歴の確認', text='his'),
+                    MessageAction(label='KBISの再起動', text='crash'),
 
                 ])
             template_message = TemplateSendMessage(
                 alt_text=f'ようこそ {data.name}さん(admin)', template=buttons_template)
             line_bot_api.reply_message(event.reply_token, template_message)
     elif text == 'crash' and (UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type):
+        """
+        HerokuかFlaskの仕様かどっちかは分からないけど
+        30秒間レスポンスを返さないとエラーで止まることを利用して、
+        わざとエラーを吐かせて自動再起動を誘う。
+        """
         notifer.output('サーバをクラッシュさせます...')
         template_text_send('Goodbye', event)
         while (True):
