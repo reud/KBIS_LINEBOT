@@ -96,13 +96,13 @@ UPDATE_HISTORY = """
      コード大幅修正　DLFailed時の処理を変更した。
 1/7     ver 1.0.11
      コードに解説を少し追加　このまま可読性を上げていきたい
-        ver 1.1
+        ver 1.1 (MELT)
      ソースコード公開
         ver 1.1.1
      jokeコマンドを追加   
         ver 1.1.2
      get_user_type()の引数を修正
-        ver 1.1.3
+1/9     ver 1.1.3
      !reud コマンドを削除
      メニューの修正
      
