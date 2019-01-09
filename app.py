@@ -422,7 +422,6 @@ def handle_text_message(event):
 !dama    ランダムでお年玉の金額を表示させます。
 !ver     バージョン裏話
 !dev     開発裏話
-!reud    めっちゃどうでもいい話
 !source  GitHubのレポジトリURLを出力します。
 """
             ret = JORK_LIST
