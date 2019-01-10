@@ -45,8 +45,7 @@ $ ls
 Herokuが何かと言うと簡単に言うと、サーバを無料で貸してくれるサービスです。
 [こちら](https://www.heroku.com/)
 からSign Up を選んでアカウントを作成してください。
-ここからは
-Bashの作業です。
+アカウント作成後はBashの作業です。
 以降の説明は全て　UbuntuかWindows(WSL)で説明を行います。
 ```
 $ wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
