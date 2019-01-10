@@ -131,6 +131,14 @@ $ heroku config:set EXCELIDS="excel-id.txtのid"
 ```
 ６行もコードがあってしんどいですが一個一個設定してください。
 
+
+
+最後の設定です。デプロイしたソースのアクセスURLをWebhook URLに設定します。
+LINE BOT の参加しているトークルームや友達から会話があると、ここに設定したURLにリクエストが送られるようになります。
+LINE Developersから設定できます。
+[ここのWebhook URLの設定部分](https://qiita.com/k_nakayama/items/18a437e9c837ec11da6d)
+が非常に参考になります。
+
 設定が完了した場合は　あとは　とどめです。
 
 ```
