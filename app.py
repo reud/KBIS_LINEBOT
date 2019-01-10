@@ -13,16 +13,16 @@
 #  under the License.
 
 from __future__ import unicode_literals
-from enum import Enum
+
+import datetime
 import errno
 import os
-import sys
-import tempfile
-from argparse import ArgumentParser
-import excelread
 import random
-from flask import Flask, request, abort
+import traceback
+from argparse import ArgumentParser
+from enum import Enum
 
+from flask import Flask, request, abort
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -31,30 +31,17 @@ from linebot.exceptions import (
 )
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
-    SourceUser, SourceGroup, SourceRoom,
-    TemplateSendMessage, ConfirmTemplate, MessageAction,
-    ButtonsTemplate, ImageCarouselTemplate, ImageCarouselColumn, URIAction,
-    PostbackAction, DatetimePickerAction,
-    CameraAction, CameraRollAction, LocationAction,
-    CarouselTemplate, CarouselColumn, PostbackEvent,
-    StickerMessage, StickerSendMessage, LocationMessage, LocationSendMessage,
-    ImageMessage, VideoMessage, AudioMessage, FileMessage,
-    UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent,
-    FlexSendMessage, BubbleContainer, ImageComponent, BoxComponent,
-    TextComponent, SpacerComponent, IconComponent, ButtonComponent,
-    SeparatorComponent, QuickReply, QuickReplyButton
+    SourceUser, TemplateSendMessage, MessageAction,
+    ButtonsTemplate, URIAction
 )
-import os
+
+import excelread
 import notifer
-import traceback
-
 import stealer
-import random
-import datetime
 
-app = Flask(__name__)
-VERSION = "KBIS 1.1.3 (MELT)"
-SOURCE='https://github.com/reud/KBIS_LINEBOT'
+app = Flask ( __name__ )
+VERSION = "KBIS 1.1.4 (MELT)"
+SOURCE = 'https://github.com/reud/KBIS_LINEBOT'
 
 UPDATE_HISTORY = """
 12/3 
@@ -105,17 +92,19 @@ UPDATE_HISTORY = """
 1/9     ver 1.1.3
      !reud コマンドを削除
      メニューの修正
-     
+1/10    ver 1.1.4
+     !sourceをsourceに変更
+     英語のままになっていたラベルを日本語に変更した。
+     Notifyへの通知のhistory openedを削除
     """
 VERSION_MEMO = """メルトでボカロにハマりました"""
 
 DEV_MEMO = """見やすくして欲しいとか要望があったら気軽にGitHubのIssueに書いてくださいね"""
 
+WAKE_TIME = datetime.datetime.now ( ).strftime ( '%m/%d %H:%M' )
 
-WAKE_TIME = datetime.datetime.now().strftime('%m/%d %H:%M')
 
-
-class UserType(Enum):
+class UserType ( Enum ):
     """
     KBISではユーザの種類を4種類に分割する。
 
@@ -128,7 +117,7 @@ class UserType(Enum):
     DEVELOPER = 4  # same as admin + add admin
 
 
-def get_user_type(user_id: str) -> UserType:
+def get_user_type( user_id: str ) -> UserType:
     """
     ユーザの権限をuser_idとmanagerから識別する。
 
@@ -142,14 +131,12 @@ def get_user_type(user_id: str) -> UserType:
     """
     global manager
     for i in special_users:
-        if i[1] == user_id:
-            return UserType(int(i[2]))
+        if i[ 1 ] == user_id:
+            return UserType ( int ( i[ 2 ] ) )
     for i in manager.memberlist:
         if i.id == user_id:
             return UserType.NORMAL_USER
     return UserType.EXTERNAL_USER
-
-
 
 
 try:
@@ -163,66 +150,66 @@ try:
     special_users = [ ]
     for i in string_list:
         special_users.append ( i.split ( ',' ) )
-    manager = excelread.Manager('会計管理簿.xlsx')
+    manager = excelread.Manager ( '会計管理簿.xlsx' )
 except:
-    notifer.output('may download failed go to failed_mode...')
-    notifer.output(traceback.format_exc())
+    notifer.output ( 'may download failed go to failed_mode...' )
+    notifer.output ( traceback.format_exc ( ) )
     DLFailedFlag = True
 
 # get channel_secret and channel_access_token from your environment variable
-channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
-channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
-line_bot_api = LineBotApi(channel_access_token)
-handler = WebhookHandler(channel_secret)
-static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
-
+channel_secret = os.getenv ( 'LINE_CHANNEL_SECRET', None )
+channel_access_token = os.getenv ( 'LINE_CHANNEL_ACCESS_TOKEN', None )
+line_bot_api = LineBotApi ( channel_access_token )
+handler = WebhookHandler ( channel_secret )
+static_tmp_path = os.path.join ( os.path.dirname ( __file__ ), 'static', 'tmp' )
 
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
     try:
-        os.makedirs(static_tmp_path)
+        os.makedirs ( static_tmp_path )
     except OSError as exc:
-        if exc.errno == errno.EEXIST and os.path.isdir(static_tmp_path):
+        if exc.errno == errno.EEXIST and os.path.isdir ( static_tmp_path ):
             pass
         else:
             raise
 
-#以下の二つはcurlコマンドでサーバを寝かせないようにするため
 
-@app.route("/renew")
+# 以下の二つはcurlコマンドでサーバを寝かせないようにするため
+
+@app.route ( "/renew" )
 def renew2():
     return "renew curl success!"
 
 
-@app.route("/alive")
+@app.route ( "/alive" )
 def open():
     return "alive!"
 
 
-@app.route("/callback", methods=['POST'])
+@app.route ( "/callback", methods=[ 'POST' ] )
 def callback():
     # get X-Line-Signature header value
-    signature = request.headers['X-Line-Signature']
+    signature = request.headers[ 'X-Line-Signature' ]
 
     # get request body as text
-    body = request.get_data(as_text=True)
-    app.logger.info("Request body: " + body)
+    body = request.get_data ( as_text=True )
+    app.logger.info ( "Request body: " + body )
 
     # handle webhook body
     try:
-        handler.handle(body, signature)
+        handler.handle ( body, signature )
     except LineBotApiError as e:
-        print("Got exception from LINE Messaging API: %s\n" % e.message)
+        print ( "Got exception from LINE Messaging API: %s\n" % e.message )
         for m in e.error.details:
-            print("  %s: %s" % (m.property, m.message))
-        print("\n")
+            print ( "  %s: %s" % (m.property, m.message) )
+        print ( "\n" )
     except InvalidSignatureError:
-        abort(400)
+        abort ( 400 )
     return 'OK'
 
 
-def template_message_send(word: str, event, button_label='メニューに戻る', button_word='menu'):
+def template_message_send( word: str, event, button_label='メニューに戻る', button_word='menu' ):
     """
     ボタンが一つ付加されたメッセージを返信する関数
 
@@ -242,17 +229,16 @@ def template_message_send(word: str, event, button_label='メニューに戻る'
 
 
     """
-    buttons_template = ButtonsTemplate(
+    buttons_template = ButtonsTemplate (
         text=word, actions=[
-            MessageAction(label=button_label, text=button_word)
-        ])
-    template_message = TemplateSendMessage(
-        alt_text=word, template=buttons_template)
-    line_bot_api.reply_message(event.reply_token, template_message)
+            MessageAction ( label=button_label, text=button_word )
+        ] )
+    template_message = TemplateSendMessage (
+        alt_text=word, template=buttons_template )
+    line_bot_api.reply_message ( event.reply_token, template_message )
 
 
-
-def template_text_send(word: str, event):
+def template_text_send( word: str, event ):
     """
     ボタンがついていないメッセージを返信する関数
 
@@ -264,13 +250,13 @@ def template_text_send(word: str, event):
 
     :return None:
     """
-    if isinstance(event.source, SourceUser):
-        line_bot_api.reply_message(
-            event.reply_token, [TextSendMessage(text=word)])
+    if isinstance ( event.source, SourceUser ):
+        line_bot_api.reply_message (
+            event.reply_token, [ TextSendMessage ( text=word ) ] )
     else:
-        line_bot_api.reply_message(
+        line_bot_api.reply_message (
             event.reply_token,
-            TextSendMessage(text=word))
+            TextSendMessage ( text=word ) )
 
 
 def omikuji() -> str:
@@ -282,8 +268,8 @@ def omikuji() -> str:
     :return str:
         おみくじの結果
     """
-    value = random.random()
-    notifer.output(f'おみくじに挑戦!\nvalue={value}')
+    value = random.random ( )
+    notifer.output ( f'おみくじに挑戦!\nvalue={value}' )
     if value < 0.001:
         return '大吉'
     elif value < 0.004:
@@ -382,12 +368,11 @@ def omikuji() -> str:
         return 'そこそこ'
 
 
+notifer.output ( f'{VERSION} 起動' )
 
-notifer.output(f'{VERSION} 起動')
 
-
-@handler.add(MessageEvent, message=TextMessage)
-def handle_text_message(event):
+@handler.add ( MessageEvent, message=TextMessage )
+def handle_text_message( event ):
     """
     LINE_BOTにメールが送られた時に使用される関数
     :param event:
@@ -396,42 +381,40 @@ def handle_text_message(event):
     :return: なし
     """
     global manager
-    profile = line_bot_api.get_profile(event.source.user_id)
+    profile = line_bot_api.get_profile ( event.source.user_id )
 
     if DLFailedFlag:
         """
         ダウンロードに失敗した場合は、Herokuをクラッシュさせて再起動させる。
         """
-        template_text_send('Sorry! GoogleDrive エラーのため再起動を行います。　数分後にお試しください。',event)
-        notifer.output (f'screenname: {profile.display_name} \nid: {profile.user_id} \ntext: {event.message.text}' )
+        template_text_send ( 'Sorry! GoogleDrive エラーのため再起動を行います。　数分後にお試しください。', event )
+        notifer.output ( f'screenname: {profile.display_name} \nid: {profile.user_id} \ntext: {event.message.text}' )
         while True:
             pass
 
-
     text = event.message.text
-    user_type = get_user_type(profile.user_id)
+    user_type = get_user_type ( profile.user_id )
     success_str = '失敗' if DLFailedFlag else '成功'
 
-    notifer.output(
-        f'screenname: {profile.display_name} \nid: {profile.user_id} \ntext: {event.message.text}\n権限:{user_type}')
-    if text.startswith('!'):  # joke commands
-        word = text[1:]
+    notifer.output (
+        f'screenname: {profile.display_name} \nid: {profile.user_id} \ntext: {event.message.text}\n権限:{user_type}' )
+    if text.startswith ( '!' ):  # joke commands
+        word = text[ 1: ]
         ret = 'debug return'
         if word == 'jokes':
             JORK_LIST = """!omikuji 運勢を占います
 !dama    ランダムでお年玉の金額を表示させます。
 !ver     バージョン裏話
 !dev     開発裏話
-!source  GitHubのレポジトリURLを出力します。
 """
             ret = JORK_LIST
         elif word == 'omikuji':
-            res = omikuji()
-            notifer.output(f'結果:{res}')
+            res = omikuji ( )
+            notifer.output ( f'結果:{res}' )
             ret = f'くじ引きの結果:{res}'
         elif word == 'dama':
-            res = int(random.gauss(10000, 5000))
-            notifer.output(f'お年玉に挑戦! 結果:{res}円')
+            res = int ( random.gauss ( 10000, 5000 ) )
+            notifer.output ( f'お年玉に挑戦! 結果:{res}円' )
             ret = f'{res}円 ゲット！'
         elif word == 'ver':
             ret = VERSION_MEMO
@@ -440,7 +423,7 @@ def handle_text_message(event):
         else:
             ret = ' ! コマンドが認識できません'
 
-        template_message_send(ret, event)
+        template_message_send ( ret, event )
     elif text == 'help' and user_type != UserType.EXTERNAL_USER:
         word = """[profile] IDを紹介します
 [rank] 自分の権限が分かります
@@ -451,49 +434,25 @@ def handle_text_message(event):
 [ver] 現在のバーションを確認します
 [source]  GitHubのレポジトリURLを出力します。要望やバグなどがある際はこちらのIssueに書いていただけると幸いです。
 [!jokes] ???"""
-        template_text_send(word, event)
-    elif text == 'dev_see' and (user_type == UserType.DEVELOPER or user_type == UserType.ADMINISTRATOR):
-        notifer.output(manager.output_data())
-        if isinstance(event.source, SourceUser):
-            line_bot_api.reply_message(
-                event.reply_token, [
-                    TextSendMessage(text='Display name: ' + profile.display_name),
-                    TextSendMessage(
-                        text='Your id is: ' + profile.user_id + 'if you want to go back to menu \n input [menu] plz')
-                ]
-            )
-        else:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text="Bot can't use profile API without user ID"))
+        template_text_send ( word, event )
     elif text == 'ver':
-        template_message_send(VERSION, event)
+        template_message_send ( VERSION, event )
     elif text == 'profile':
-        template_text_send(f'Your id is {profile.user_id}', event)
-        notifer.output('IDは以下の通りです。')
-        notifer.output(f'{profile.user_id}')
+        template_text_send ( f'Your id is {profile.user_id}', event )
+        notifer.output ( 'IDは以下の通りです。' )
+        notifer.output ( f'{profile.user_id}' )
     elif text == 'his':
-        template_text_send(UPDATE_HISTORY, event)
-        notifer.output('history opened')
+        template_text_send ( UPDATE_HISTORY, event )
     elif text == 'rank':
-        if (user_type == UserType.EXTERNAL_USER):
+        if user_type == UserType.EXTERNAL_USER:
             mes = 'あなたは外部ユーザです。'
-        elif (user_type == UserType.NORMAL_USER):
+        elif user_type == UserType.NORMAL_USER:
             mes = 'あなたは部内の人間です。'
-        elif (user_type == UserType.ADMINISTRATOR):
+        elif user_type == UserType.ADMINISTRATOR:
             mes = '管理者さんこんにちは！！！'
-        elif (user_type == UserType.DEVELOPER):
+        elif user_type == UserType.DEVELOPER:
             mes = 'ようこそ開発者さん！'
-        if isinstance(event.source, SourceUser):
-            line_bot_api.reply_message(
-                event.reply_token, [
-                    TextSendMessage(text=mes)
-                ]
-            )
-        else:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text="Bot can't use profile API without user ID"))
+        template_message_send(mes, event)
     elif text == 'source':
         buttons_template = ButtonsTemplate (
             text=f'ソースコードはこちら:\n{SOURCE}', actions=[
@@ -503,136 +462,132 @@ def handle_text_message(event):
         template_message = TemplateSendMessage (
             alt_text=f'更新日時:{WAKE_TIME}\n起動時更新:{success_str}', template=buttons_template )
         line_bot_api.reply_message ( event.reply_token, template_message )
-    elif text == 'check' and (
-            UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type or UserType.NORMAL_USER == user_type or UserType.WELLKNOWN_USER == user_type):
-        notifer.output(success_str)
-        if (UserType.DEVELOPER == user_type):
-            buttons_template = ButtonsTemplate(
+    elif text == 'check' and user_type != UserType.EXTERNAL_USER:
+        notifer.output ( success_str )
+        if UserType.DEVELOPER == user_type :
+            buttons_template = ButtonsTemplate (
                 text=f'更新日時:{WAKE_TIME}', actions=[
-                    URIAction(label='Go To reud.net', uri='https://reud.net/'),
+                    URIAction ( label='reud.netにアクセス', uri='https://reud.net/' ),
                     # PostbackAction ( label='Back to menu', data='menu' ),
                     # PostbackAction ( label='ping with text', data='ping', text='ping' ),
-                    MessageAction(label='Back to menu', text='menu')
-                ])
-            template_message = TemplateSendMessage(
-                alt_text=f'更新日時:{WAKE_TIME}\n起動時更新:{success_str}', template=buttons_template)
-            line_bot_api.reply_message(event.reply_token, template_message)
+                    MessageAction ( label='メニューに戻る', text='menu' )
+                ] )
+            template_message = TemplateSendMessage (
+                alt_text=f'更新日時:{WAKE_TIME}\n起動時更新:{success_str}', template=buttons_template )
+            line_bot_api.reply_message ( event.reply_token, template_message )
 
         else:
-            data = manager.getFromId(profile.user_id)
-            ret_text = f'滞納額は{data.money:,}円です。\n更新日時{WAKE_TIME}' if data.money >= 0 else f'{abs(data.money):,}円の返金あり。\n更新日時{WAKE_TIME}'
-            buttons_template = ButtonsTemplate(
+            data = manager.getFromId ( profile.user_id )
+            ret_text = f'滞納額は{data.money:,}円です。\n更新日時{WAKE_TIME}' if data.money >= 0 else f'{abs (data.money ):,}円の返金あり。\n更新日時{WAKE_TIME}'
+            buttons_template = ButtonsTemplate (
                 text=ret_text, actions=[
                     # URIAction(label='Go to line.me', uri='https://line.me'),
                     # PostbackAction(label='Back to menu', data='menu'),
                     # PostbackAction(label='ping with text', data='ping', text='ping'),
-                    MessageAction(label='Back to menu', text='menu')
-                ])
-            template_message = TemplateSendMessage(
-                alt_text=ret_text, template=buttons_template)
-            line_bot_api.reply_message(event.reply_token, template_message)
+                    MessageAction ( label='メニューに戻る', text='menu' )
+                ] )
+            template_message = TemplateSendMessage (
+                alt_text=ret_text, template=buttons_template )
+            line_bot_api.reply_message ( event.reply_token, template_message )
     elif text == 'menu' and (
             UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type or UserType.NORMAL_USER == user_type or UserType.WELLKNOWN_USER == user_type):
-        if (UserType.DEVELOPER == user_type):
-            buttons_template = ButtonsTemplate(
+        if  UserType.DEVELOPER == user_type :
+            buttons_template = ButtonsTemplate (
                 text=f'こんにちは開発者さん！', actions=[
-                    MessageAction(label='班の予算額を確認', text='group_check'),
-                    MessageAction(label='アップデート履歴の確認', text='his'),
-                    MessageAction(label='再起動', text='crash'),
-                    MessageAction(label='操作方法を確認', text='help'),
+                    MessageAction ( label='班の予算額を確認', text='group_check' ),
+                    MessageAction ( label='アップデート履歴の確認', text='his' ),
+                    MessageAction ( label='再起動', text='crash' ),
+                    MessageAction ( label='操作方法を確認', text='help' ),
 
-                ])
-            template_message = TemplateSendMessage(
-                alt_text=f'(Developer)\n更新日時:{WAKE_TIME}\n起動時更新:{success_str}', template=buttons_template)
-            line_bot_api.reply_message(event.reply_token, template_message)
-        elif (UserType.NORMAL_USER == user_type):
-            data = manager.getFromId(profile.user_id)
-            buttons_template = ButtonsTemplate(
+                ] )
+            template_message = TemplateSendMessage (
+                alt_text=f'(Developer)\n更新日時:{WAKE_TIME}\n起動時更新:{success_str}', template=buttons_template )
+            line_bot_api.reply_message ( event.reply_token, template_message )
+        elif  UserType.NORMAL_USER == user_type :
+            data = manager.getFromId ( profile.user_id )
+            buttons_template = ButtonsTemplate (
                 text=f'ようこそ {data.name}さん', actions=[
-                    MessageAction(label='滞納額を確認', text='check'),
-                    MessageAction(label='班の予算額を確認', text='group_check'),
-                    MessageAction(label='操作方法を確認', text='help'),
-                    MessageAction(label='バージョンの確認', text='ver'),
+                    MessageAction ( label='滞納額を確認', text='check' ),
+                    MessageAction ( label='班の予算額を確認', text='group_check' ),
+                    MessageAction ( label='操作方法を確認', text='help' ),
+                    MessageAction ( label='バージョンの確認', text='ver' ),
 
-                ])
-            template_message = TemplateSendMessage(
-                alt_text=f'ようこそ {data.name}さん', template=buttons_template)
-            line_bot_api.reply_message(event.reply_token, template_message)
-        elif (UserType.WELLKNOWN_USER == user_type):
-            data = manager.getFromId(profile.user_id)
-            buttons_template = ButtonsTemplate(
+                ] )
+            template_message = TemplateSendMessage (
+                alt_text=f'ようこそ {data.name}さん', template=buttons_template )
+            line_bot_api.reply_message ( event.reply_token, template_message )
+        elif  UserType.WELLKNOWN_USER == user_type :
+            data = manager.getFromId ( profile.user_id )
+            buttons_template = ButtonsTemplate (
                 text=f'ようこそ {data.name}さん(well_known)', actions=[
-                    MessageAction(label='滞納額を確認', text='check'),
-                    MessageAction(label='班の予算額を確認', text='group_check'),
-                    MessageAction(label='help', text='help'),
+                    MessageAction ( label='滞納額を確認', text='check' ),
+                    MessageAction ( label='班の予算額を確認', text='group_check' ),
+                    MessageAction ( label='操作方法を確認', text='help' ),
 
-                ])
-            template_message = TemplateSendMessage(
-                alt_text=f'ようこそ {data.name}さん(well_known)', template=buttons_template)
-            line_bot_api.reply_message(event.reply_token, template_message)
-        elif (UserType.ADMINISTRATOR == user_type):
-            data = manager.getFromId(profile.user_id)
-            buttons_template = ButtonsTemplate(
+                ] )
+            template_message = TemplateSendMessage (
+                alt_text=f'ようこそ {data.name}さん(well_known)', template=buttons_template )
+            line_bot_api.reply_message ( event.reply_token, template_message )
+        elif UserType.ADMINISTRATOR == user_type :
+            data = manager.getFromId ( profile.user_id )
+            buttons_template = ButtonsTemplate (
                 text=f'ようこそ {data.name}さん(admin)', actions=[
-                    MessageAction(label='滞納額を確認', text='check'),
-                    MessageAction(label='班の予算額を確認', text='group_check'),
-                    MessageAction(label='アップデート履歴の確認', text='his'),
-                    MessageAction(label='KBISの再起動', text='crash'),
-
-                ])
-            template_message = TemplateSendMessage(
-                alt_text=f'ようこそ {data.name}さん(admin)', template=buttons_template)
-            line_bot_api.reply_message(event.reply_token, template_message)
-    elif text == 'crash' and (UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type):
+                    MessageAction ( label='滞納額を確認', text='check' ),
+                    MessageAction ( label='班の予算額を確認', text='group_check' ),
+                    MessageAction ( label='アップデート履歴の確認', text='his' ),
+                    MessageAction ( label='KBISの再起動', text='crash' ),
+                ] )
+            template_message = TemplateSendMessage (
+                alt_text=f'ようこそ {data.name}さん(admin)', template=buttons_template )
+            line_bot_api.reply_message ( event.reply_token, template_message )
+    elif text == 'crash' and UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type:
         """
         HerokuかFlaskの仕様かどっちかは分からないけど
         30秒間レスポンスを返さないとエラーで止まることを利用して、
         わざとエラーを吐かせて自動再起動を誘う。
         """
-        notifer.output('サーバをクラッシュさせます...')
-        template_text_send('Goodbye', event)
+        notifer.output ( 'サーバをクラッシュさせます...' )
+        template_text_send ( 'Goodbye', event )
         while (True):
             pass
+
     elif text == 'see connection' and (UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type):
-        notifer.output('output connect....')
-        notifer.output(manager.outputIdConnection())
-        buttons_template = ButtonsTemplate(
-            title=f'output success', text=f'back to menu ?', actions=[
+        notifer.output ( 'output connect....' )
+        notifer.output ( manager.outputIdConnection ( ) )
+        buttons_template = ButtonsTemplate (
+            text='出力終了\nメニューに戻りますか？', actions=[
                 # URIAction(label='Go to line.me', uri='https://line.me'),
                 # PostbackAction(label='Back to menu', data='menu'),
                 # PostbackAction(label='ping with text', data='ping', text='ping'),
-                MessageAction(label='Back to menu', text='menu')
-            ])
-        template_message = TemplateSendMessage(
-            alt_text='Buttons alt text', template=buttons_template)
-        line_bot_api.reply_message(event.reply_token, template_message)
+                MessageAction ( label='メニューに戻る', text='menu' )
+            ] )
+        template_message = TemplateSendMessage (
+            alt_text='出力', template=buttons_template )
+        line_bot_api.reply_message ( event.reply_token, template_message )
     elif text == 'group_check' and user_type != UserType.EXTERNAL_USER:
         output = ''
 
         for i in manager.groups:
             output += f'{i.name} : {i.money:,}円\n'
-        notifer.output(output)
-        template_message_send(output, event)
+        notifer.output ( output )
+        template_message_send ( output, event )
 
     else:
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text='すいません　コマンドが認識できませんでした！'))
-
-
-
+        line_bot_api.reply_message (
+            event.reply_token, TextSendMessage ( text='すいません　コマンドが認識できませんでした！' ) )
 
 
 if __name__ == "__main__":
-    arg_parser = ArgumentParser(
+    arg_parser = ArgumentParser (
         usage='Usage: python ' + __file__ + ' [--port <port>] [--help]'
     )
-    arg_parser.add_argument('-p', '--port', type=int, default=8000, help='port')
-    arg_parser.add_argument('-d', '--debug', default=False, help='debug')
-    options = arg_parser.parse_args()
+    arg_parser.add_argument ( '-p', '--port', type=int, default=8000, help='port' )
+    arg_parser.add_argument ( '-d', '--debug', default=False, help='debug' )
+    options = arg_parser.parse_args ( )
 
     # create tmp dir for download content
-    make_static_tmp_dir()
+    make_static_tmp_dir ( )
     try:
-        app.run(debug=options.debug, port=options.port)
+        app.run ( debug=options.debug, port=options.port )
     except:
-        notifer.output(traceback.format_exc())
+        notifer.output ( traceback.format_exc ( ) )
