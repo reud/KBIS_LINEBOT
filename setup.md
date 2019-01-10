@@ -108,6 +108,7 @@ KBISのログなどはLINE Notifyと言うサービスにより通知されま�
 を手元においてください。
 
 あとは会計管理者から、googledriveの共有ファイルであるexcel-id.txtとSpecialUserIdsと会計管理簿.xlsxのidを聞いてください。[(idの教え方)](https://github.com/reud/KBIS_LINEBOT/blob/master/%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E5%BC%95%E3%81%8D%E7%B6%99%E3%81%8E%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6.md)
+
 以上6つの情報をHerokuのアプリに教えてあげます。
 
 ここでherokuに教える形式が
