@@ -96,6 +96,8 @@ UPDATE_HISTORY = """
      !sourceをsourceに変更
      英語のままになっていたラベルを日本語に変更した。
      Notifyへの通知のhistory openedを削除
+1/27    ver 1.1.5
+     条件分岐を修正
     """
 VERSION_MEMO = """メルトでボカロにハマりました"""
 
@@ -540,7 +542,7 @@ def handle_text_message( event ):
             template_message = TemplateSendMessage (
                 alt_text=f'ようこそ {data.name}さん(admin)', template=buttons_template )
             line_bot_api.reply_message ( event.reply_token, template_message )
-    elif text == 'crash' and UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type:
+    elif text == 'crash' and (UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type):
         """
         HerokuかFlaskの仕様かどっちかは分からないけど
         30秒間レスポンスを返さないとエラーで止まることを利用して、
