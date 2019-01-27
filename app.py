@@ -452,7 +452,7 @@ def handle_text_message( event ):
             mes = '管理者さんこんにちは！！！'
         elif user_type == UserType.DEVELOPER:
             mes = 'ようこそ開発者さん！'
-        template_message_send(mes, event)
+        template_message_send ( mes, event )
     elif text == 'source':
         buttons_template = ButtonsTemplate (
             text=f'ソースコードはこちら:\n{SOURCE}', actions=[
@@ -464,7 +464,7 @@ def handle_text_message( event ):
         line_bot_api.reply_message ( event.reply_token, template_message )
     elif text == 'check' and user_type != UserType.EXTERNAL_USER:
         notifer.output ( success_str )
-        if UserType.DEVELOPER == user_type :
+        if UserType.DEVELOPER == user_type:
             buttons_template = ButtonsTemplate (
                 text=f'更新日時:{WAKE_TIME}', actions=[
                     URIAction ( label='reud.netにアクセス', uri='https://reud.net/' ),
@@ -478,7 +478,8 @@ def handle_text_message( event ):
 
         else:
             data = manager.getFromId ( profile.user_id )
-            ret_text = f'滞納額は{data.money:,}円です。\n更新日時{WAKE_TIME}' if data.money >= 0 else f'{abs (data.money ):,}円の返金あり。\n更新日時{WAKE_TIME}'
+            ret_text = f'滞納額は{data.money:,}円です。\n更新日時{WAKE_TIME}' \
+                if data.money >= 0 else f'{abs ( data.money ):,}円の返金あり。\n更新日時{WAKE_TIME}'
             buttons_template = ButtonsTemplate (
                 text=ret_text, actions=[
                     # URIAction(label='Go to line.me', uri='https://line.me'),
@@ -489,9 +490,8 @@ def handle_text_message( event ):
             template_message = TemplateSendMessage (
                 alt_text=ret_text, template=buttons_template )
             line_bot_api.reply_message ( event.reply_token, template_message )
-    elif text == 'menu' and (
-            UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type or UserType.NORMAL_USER == user_type or UserType.WELLKNOWN_USER == user_type):
-        if  UserType.DEVELOPER == user_type :
+    elif text == 'menu' and user_type != UserType.EXTERNAL_USER:
+        if UserType.DEVELOPER == user_type:
             buttons_template = ButtonsTemplate (
                 text=f'こんにちは開発者さん！', actions=[
                     MessageAction ( label='班の予算額を確認', text='group_check' ),
@@ -503,7 +503,7 @@ def handle_text_message( event ):
             template_message = TemplateSendMessage (
                 alt_text=f'(Developer)\n更新日時:{WAKE_TIME}\n起動時更新:{success_str}', template=buttons_template )
             line_bot_api.reply_message ( event.reply_token, template_message )
-        elif  UserType.NORMAL_USER == user_type :
+        elif UserType.NORMAL_USER == user_type:
             data = manager.getFromId ( profile.user_id )
             buttons_template = ButtonsTemplate (
                 text=f'ようこそ {data.name}さん', actions=[
@@ -516,7 +516,7 @@ def handle_text_message( event ):
             template_message = TemplateSendMessage (
                 alt_text=f'ようこそ {data.name}さん', template=buttons_template )
             line_bot_api.reply_message ( event.reply_token, template_message )
-        elif  UserType.WELLKNOWN_USER == user_type :
+        elif UserType.WELLKNOWN_USER == user_type:
             data = manager.getFromId ( profile.user_id )
             buttons_template = ButtonsTemplate (
                 text=f'ようこそ {data.name}さん(well_known)', actions=[
@@ -528,7 +528,7 @@ def handle_text_message( event ):
             template_message = TemplateSendMessage (
                 alt_text=f'ようこそ {data.name}さん(well_known)', template=buttons_template )
             line_bot_api.reply_message ( event.reply_token, template_message )
-        elif UserType.ADMINISTRATOR == user_type :
+        elif UserType.ADMINISTRATOR == user_type:
             data = manager.getFromId ( profile.user_id )
             buttons_template = ButtonsTemplate (
                 text=f'ようこそ {data.name}さん(admin)', actions=[
