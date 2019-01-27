@@ -40,7 +40,7 @@ import notifer
 import stealer
 
 app = Flask ( __name__ )
-VERSION = "KBIS 1.1.4 (MELT)"
+VERSION = "KBIS 1.1.5 (MELT)"
 SOURCE = 'https://github.com/reud/KBIS_LINEBOT'
 
 UPDATE_HISTORY = """
