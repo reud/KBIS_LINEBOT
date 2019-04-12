@@ -98,6 +98,9 @@ UPDATE_HISTORY = """
      Notifyへの通知のhistory openedを削除
 1/27    ver 1.1.5
      条件分岐を修正
+4/12    ver 1.1.6
+     Pythonの実行バージョンを3.7.0に変更
+     21Gに対応
     """
 VERSION_MEMO = """メルトでボカロにハマりました"""
 
