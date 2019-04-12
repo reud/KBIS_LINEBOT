@@ -40,7 +40,7 @@ import notifer
 import stealer
 
 app = Flask ( __name__ )
-VERSION = "KBIS 1.1.5 (MELT)"
+VERSION = "KBIS 1.1.6.1 (MELT)"
 SOURCE = 'https://github.com/reud/KBIS_LINEBOT'
 
 UPDATE_HISTORY = """
@@ -101,6 +101,8 @@ UPDATE_HISTORY = """
 4/12    ver 1.1.6
      Pythonの実行バージョンを3.7.0に変更
      21Gに対応
+        ver 1.1.6.1
+     表記修正
     """
 VERSION_MEMO = """メルトでボカロにハマりました"""
 
