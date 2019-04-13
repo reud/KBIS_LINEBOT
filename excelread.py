@@ -69,7 +69,7 @@ class Manager(object):
         """
         workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
         yosan_sheet = workbook['予算']
-        self.memberlist = []
+        self.memberlist:list = []
         self.path = path
         FROM = 15
         TO = 21
