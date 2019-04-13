@@ -40,7 +40,7 @@ import notifer
 import stealer
 
 app = Flask(__name__)
-VERSION = "KBIS 1.1.6.1 (MELT)"
+VERSION = "KBIS 1.1.7 (MELT)"
 SOURCE = 'https://github.com/reud/KBIS_LINEBOT'
 
 UPDATE_HISTORY = """
@@ -103,6 +103,8 @@ UPDATE_HISTORY = """
      21Gに対応
         ver 1.1.6.1
      表記修正
+4/13    ver 1.1.7
+     push messageに対応
     """
 VERSION_MEMO = """メルトでボカロにハマりました"""
 
@@ -440,7 +442,10 @@ def handle_text_message(event):
 [his] アップデート履歴を確認します
 [ver] 現在のバーションを確認します
 [source]  GitHubのレポジトリURLを出力します。要望やバグなどがある際はこちらのIssueに書いていただけると幸いです。
-[!jokes] ???"""
+[!jokes] ???
+(特殊権限限定)[push all {文字列}] 文字列を全員に一斉送信します(実際は中括弧いらないです)
+(特殊権限限定)[see connection] idと名前を全て出力します。
+(特殊権限限定)[crash]サーバをクラッシュさせ再起動させます。"""
         template_text_send(word, event)
     elif text == 'ver':
         template_message_send(VERSION, event)
@@ -589,8 +594,6 @@ def handle_text_message(event):
             notifer.output(f'{count}人に送信しました')
         except:
             notifer.output(traceback.format_exc())
-
-
     else:
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text='すいません　コマンドが認識できませんでした！'))
