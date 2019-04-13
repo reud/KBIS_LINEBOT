@@ -3,6 +3,11 @@ KBIS on LINEBOT
 
 Kohken Blance Inquary System
 
+## 歴史
+[KBIS](https://github.com/reud/KBIS)
+[KBIS_OLD](https://github.com/reud/KBIS_OLD) (すいませんプライベートリポジトリです)
+[moduled_KBIS](https://github.com/reud/moduled-KBIS)
+
 ## Description
 LINE BOTを用いた部内会計情報の照会を行うアプリケーション
 ## Requirement
