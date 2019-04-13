@@ -40,7 +40,7 @@ import notifer
 import stealer
 
 app = Flask(__name__)
-VERSION = "KBIS 1.1.7 (MELT)"
+VERSION = "KBIS 1.1.7.1 (MELT)"
 SOURCE = 'https://github.com/reud/KBIS_LINEBOT'
 
 UPDATE_HISTORY = """
@@ -105,6 +105,8 @@ UPDATE_HISTORY = """
      表記修正
 4/13    ver 1.1.7
      push messageに対応
+        ver 1.1.7.1
+     セキュリティ対応(Python 3.7 -> 3.7.3 and module update)
     """
 VERSION_MEMO = """メルトでボカロにハマりました"""
 

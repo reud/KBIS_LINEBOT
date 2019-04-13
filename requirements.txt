@@ -10,7 +10,7 @@ httplib2==0.11.3
 idna==2.7
 itsdangerous==1.1.0
 jdcal==1.4
-Jinja2==2.10
+Jinja2>=2.10.1
 line-bot-sdk==1.8.0
 MarkupSafe==1.0
 oauth2client==4.1.3
