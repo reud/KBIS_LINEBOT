@@ -69,7 +69,7 @@ class Manager(object):
         """
         workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
         yosan_sheet = workbook['予算']
-        self.memberlist:list = []
+        self.memberlist: list = []
         self.path = path
         FROM = 15
         TO = 21
@@ -202,7 +202,10 @@ class Manager(object):
             list_in_list = []
             for i in string_list:
                 list_in_list.append(i.split(','))
+
             for i in list_in_list:
+                if len(i) < 2:
+                    raise IndexError(f'要素が1以下の配列にアクセスしようとしています。　内容: {i}')
                 self.setId(name=i[0], id=i[1], strict=True)
                 pass
 
