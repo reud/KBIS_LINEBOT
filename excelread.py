@@ -202,10 +202,10 @@ class Manager(object):
             list_in_list = []
             for i in string_list:
                 list_in_list.append(i.split(','))
-
+            print(list_in_list)
             for i in list_in_list:
                 if len(i) < 2:
-                    raise IndexError(f'要素が1以下の配列にアクセスしようとしています。　内容: {i}')
+                    raise IndexError(f'要素が1以下の配列にアクセスしようとしています。　内容: {list_in_list}')
                 self.setId(name=i[0], id=i[1], strict=True)
                 pass
 

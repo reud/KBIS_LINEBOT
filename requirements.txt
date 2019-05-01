@@ -8,6 +8,7 @@ future==0.17.1
 google-api-python-client==1.7.8
 google-auth==1.6.3
 google-auth-httplib2==0.0.3
+googledrivedownloader==0.3
 gunicorn==19.9.0
 httplib2==0.11.3
 idna==2.7
