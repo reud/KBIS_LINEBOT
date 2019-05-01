@@ -107,6 +107,9 @@ UPDATE_HISTORY = """
      push messageに対応
         ver 1.1.7.1
      セキュリティ対応(Python 3.7 -> 3.7.3 and module update)
+5/1     ver 1.1.7.2
+     セキュリティ対応(module update)
+     push allの設定ミスを修正
     """
 VERSION_MEMO = """メルトでボカロにハマりました"""
 
@@ -586,7 +589,7 @@ def handle_text_message(event):
     elif text.startswith('push all') and (UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type):
         try:
             splited: list = text.split()[2:]
-            serif: str = '/'.join(splited).replace('/')
+            serif: str = '/'.join(splited).replace('/','')
             messages = TextSendMessage(text=serif)
             count=0
             for member in manager.memberlist:
