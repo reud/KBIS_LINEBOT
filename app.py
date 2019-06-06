@@ -40,7 +40,7 @@ import notifer
 import stealer
 
 app = Flask(__name__)
-VERSION = "KBIS 1.1.7.2 (MELT)"
+VERSION = "KBIS 1.1.7.2.1 (MELT)"
 SOURCE = 'https://github.com/reud/KBIS_LINEBOT'
 
 UPDATE_HISTORY = """
@@ -110,6 +110,8 @@ UPDATE_HISTORY = """
 5/1     ver 1.1.7.2
      セキュリティ対応(module update)
      push allの設定ミスを修正
+6/6     ver 1.1.7.2.1
+     LINE Notifyへのログの出力を一旦削除
     """
 VERSION_MEMO = """メルトでボカロにハマりました"""
 
@@ -166,7 +168,7 @@ try:
         special_users.append(i.split(','))
     manager = excelread.Manager('会計管理簿.xlsx')
 except:
-    notifer.output('may download failed go to failed_mode...')
+    # notifer.output('may download failed go to failed_mode...')
     notifer.output(traceback.format_exc())
     DLFailedFlag = True
 
@@ -283,7 +285,7 @@ def omikuji() -> str:
         おみくじの結果
     """
     value = random.random()
-    notifer.output(f'おみくじに挑戦!\nvalue={value}')
+    # notifer.output(f'おみくじに挑戦!\nvalue={value}')
     if value < 0.001:
         return '大吉'
     elif value < 0.004:
@@ -382,7 +384,7 @@ def omikuji() -> str:
         return 'そこそこ'
 
 
-notifer.output(f'{VERSION} 起動')
+# notifer.output(f'{VERSION} 起動')
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -402,7 +404,7 @@ def handle_text_message(event):
         ダウンロードに失敗した場合は、Herokuをクラッシュさせて再起動させる。
         """
         template_text_send('Sorry! GoogleDrive エラーのため再起動を行います。　数分後にお試しください。', event)
-        notifer.output(f'screenname: {profile.display_name} \nid: {profile.user_id} \ntext: {event.message.text}')
+        # notifer.output(f'screenname: {profile.display_name} \nid: {profile.user_id} \ntext: {event.message.text}')
         while True:
             pass
 
@@ -456,8 +458,8 @@ def handle_text_message(event):
         template_message_send(VERSION, event)
     elif text == 'profile':
         template_text_send(f'Your id is {profile.user_id}', event)
-        notifer.output('IDは以下の通りです。')
-        notifer.output(f'{profile.user_id}')
+        # notifer.output('IDは以下の通りです。')
+        # notifer.output(f'{profile.user_id}')
     elif text == 'his':
         template_text_send(UPDATE_HISTORY, event)
     elif text == 'rank':
@@ -480,7 +482,7 @@ def handle_text_message(event):
             alt_text=f'更新日時:{WAKE_TIME}\n起動時更新:{success_str}', template=buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif text == 'check' and user_type != UserType.EXTERNAL_USER:
-        notifer.output(success_str)
+        # notifer.output(success_str)
         if UserType.DEVELOPER == user_type:
             buttons_template = ButtonsTemplate(
                 text=f'更新日時:{WAKE_TIME}', actions=[
@@ -562,13 +564,13 @@ def handle_text_message(event):
         30秒間レスポンスを返さないとエラーで止まることを利用して、
         わざとエラーを吐かせて自動再起動を誘う。
         """
-        notifer.output('サーバをクラッシュさせます...')
+        # notifer.output('サーバをクラッシュさせます...')
         template_text_send('Goodbye', event)
         while (True):
             pass
     elif text == 'see connection' and (UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type):
-        notifer.output('output connect....')
-        notifer.output(manager.outputIdConnection())
+        # notifer.output('output connect....')
+        # notifer.output(manager.outputIdConnection())
         buttons_template = ButtonsTemplate(
             text='出力終了\nメニューに戻りますか？', actions=[
                 # URIAction(label='Go to line.me', uri='https://line.me'),
@@ -584,7 +586,7 @@ def handle_text_message(event):
 
         for i in manager.groups:
             output += f'{i.name} : {i.money:,}円\n'
-        notifer.output(output)
+        # notifer.output(output)
         template_message_send(output, event)
     elif text.startswith('push all') and (UserType.DEVELOPER == user_type or UserType.ADMINISTRATOR == user_type):
         try:
