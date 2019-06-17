@@ -72,7 +72,7 @@ class Manager(object):
         self.memberlist: list = []
         self.path = path
         FROM = 15
-        TO = 21
+        TO = 22
 
         for i in range(FROM, TO + 1):
             ws = workbook[str(i) + 'G']
@@ -124,7 +124,7 @@ class Manager(object):
                         strings = '-strict set happen-'
                         self.memberlist[i].id = id
                         return strings + f'\n{name} new id->{self.memberlist[i].id}'
-        raise NameError('その名前のメンバは見つかりませんでした。')
+        raise NameError(f'{name} not found その名前のメンバは見つかりませんでした。')
 
     def getFromId(self, id: str) -> Member:
         """
