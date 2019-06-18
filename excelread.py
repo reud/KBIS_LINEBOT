@@ -72,7 +72,7 @@ class Manager(object):
         self.memberlist: list = []
         self.path = path
         FROM = 15
-        TO = 22
+        TO = 21
 
         for i in range(FROM, TO + 1):
             ws = workbook[str(i) + 'G']
