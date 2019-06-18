@@ -124,7 +124,8 @@ class Manager(object):
                         strings = '-strict set happen-'
                         self.memberlist[i].id = id
                         return strings + f'\n{name} new id->{self.memberlist[i].id}'
-        raise NameError(f'{name} not found その名前のメンバは見つかりませんでした。')
+
+        raise NameError(f'{name} not found \n その名前のメンバは見つかりませんでした。 searched from {self.memberlist}')
 
     def getFromId(self, id: str) -> Member:
         """
